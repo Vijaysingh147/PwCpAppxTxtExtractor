@@ -1667,7 +1667,22 @@ async def process_appxwp(bot: Client, m: Message, user_id: int):
 
 # Start Flask + Bot
 if __name__ == "__main__":
-    threading.Thread(target=run_flask).start()
-    bot.run()
+    # Start the Flask thread
+    threading.Thread(target=run_flask, daemon=True).start()
+    
+    # Manually create and set the event loop for the main thread
+    loop = asyncio.new_event_loop()
+    asyncio.set_event_loop(loop)
+    
+    # Run the bot using the loop
+    loop.run_until_complete(bot.start())
+    print("Bot Started Successfully!")
+    
+    # Use idle() to keep the bot running and listening for events
+    from pyrogram.methods.utilities.idle import idle
+    loop.run_until_complete(idle())
+    
+    # Stop the bot gracefully when finished
+    loop.run_until_complete(bot.stop())
                                         
 
